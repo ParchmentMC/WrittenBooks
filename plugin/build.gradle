@@ -1,7 +1,6 @@
 plugins {
     id 'java-gradle-plugin'
-    id 'maven-publish'
-    id 'ParchmentMC-WrittenBooks' version '0.0.2.0-gab2ee61'
+    id 'ParchmentMC-WrittenBooks' version '0.0.3.0'
 }
 
 project.group = 'org.parchmentmc'
@@ -20,21 +19,6 @@ gradlePlugin {
         writtenbooks {
             id = 'ParchmentMC-WrittenBooks'
             implementationClass = 'org.parchmentmc.writtenbooks.WrittenBooksPlugin'
-        }
-    }
-}
-
-publishing {
-    if (System.getenv().containsKey("LDTTeamJfrogUsername") && System.getenv().containsKey("LDTTeamJfrogPassword")) {
-        repositories {
-            maven {
-                name 'ParchmentMC'
-                credentials {
-                    username System.getenv().get("LDTTeamJfrogUsername")
-                    password System.getenv().get("LDTTeamJfrogPassword")
-                }
-                url 'https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/'
-            }
         }
     }
 }
