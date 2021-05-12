@@ -42,7 +42,7 @@ public class VersioningManager
 
         try
         {
-            final String[] description = projectGit.describe().setLong(true).setTags(true).call().split("-", 2);
+            final String[] description = projectGit.describe().setLong(true).setTags(true).call().split("-");
             String branch = projectGit.getRepository().getBranch();
             if (branch != null && branch.startsWith("pulls/"))
                 branch = "pr" + branch.split("/", 1)[1];
