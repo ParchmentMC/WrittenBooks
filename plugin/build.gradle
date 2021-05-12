@@ -1,0 +1,50 @@
+buildscript {
+    repositories {
+        maven {
+            name 'ParchmentMC'
+            url 'https://ldtteam.jfrog.io/artifactory/parchmentmc/'
+        }
+    }
+}
+
+plugins {
+    id 'java-gradle-plugin'
+    id 'maven-publish'
+    id 'ParchmentMC-WrittenBooks' version '0.0.0'
+}
+
+project.group = 'org.parchmentmc'
+project.version = "0.0.0"
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:+'
+}
+
+gradlePlugin {
+    // Define the plugin
+    plugins {
+        writtenbooks {
+            id = 'ParchmentMC-WrittenBooks'
+            implementationClass = 'org.parchmentmc.writtenbooks.WrittenBooksPlugin'
+        }
+    }
+}
+
+publishing {
+    if (System.getenv().containsKey("LDTTeamJfrogUsername") && System.getenv().containsKey("LDTTeamJfrogPassword")) {
+        repositories {
+            maven {
+                name 'ParchmentMC'
+                credentials {
+                    username System.getenv().get("LDTTeamJfrogUsername")
+                    password System.getenv().get("LDTTeamJfrogPassword")
+                }
+                url 'https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/'
+            }
+        }
+    }
+}
