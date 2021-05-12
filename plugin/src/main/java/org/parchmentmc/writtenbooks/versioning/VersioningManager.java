@@ -34,7 +34,7 @@ public class VersioningManager
         final String version = getVersionFromProject(project);
         project.setVersion(version);
 
-        project.getLogger().info("Updated version of project: " + project.getName() + " to: " + version);
+        project.getLogger().lifecycle("Updated version of project: " + project.getName() + " to: " + version);
     }
 
     private String getVersionFromProject(final Project project) {
