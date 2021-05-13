@@ -6,7 +6,6 @@ package org.parchmentmc.writtenbooks;
 import org.gradle.api.Project;
 import org.gradle.api.Plugin;
 import org.parchmentmc.writtenbooks.publishing.PublishingManager;
-import org.parchmentmc.writtenbooks.repositories.RepositoryManager;
 import org.parchmentmc.writtenbooks.versioning.VersioningManager;
 
 public class WrittenBooksPlugin implements Plugin<Project> {
@@ -15,8 +14,11 @@ public class WrittenBooksPlugin implements Plugin<Project> {
         project.getLogger().debug("Applying versioning manager.");
         VersioningManager.getInstance().apply(project);
 
-        project.getLogger().debug("Applying repository manager.");
-        RepositoryManager.getInstance().apply(project);
+        project.getLogger().debug("Applying repository");
+        project.getRepositories().maven(repo -> {
+            repo.setName("ParchmentMC");
+            repo.setUrl("https://ldtteam.jfrog.io/artifactory/parchmentmc/");
+        });
 
         project.getLogger().debug("Applying publishing manager.");
         PublishingManager.getInstance().apply(project);
