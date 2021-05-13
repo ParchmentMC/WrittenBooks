@@ -40,13 +40,13 @@ public class GitVersion {
 
     public String getVersion() {
         if (cachedVersion == null) {
-            cachedVersion = getVersionFromProject(project);
+            cachedVersion = calculateVersion(project);
             project.getLogger().lifecycle("Version for {}: {}", project.getName(), cachedVersion);
         }
         return cachedVersion;
     }
 
-    private String getVersionFromProject(final Project project) {
+    private String calculateVersion(final Project project) {
         try (Repository repo = getRepository(project, throwOnError)) {
             if (repo == null) {
                 return "0.0.0-NOGIT";
