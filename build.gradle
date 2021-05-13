@@ -1,6 +1,7 @@
 plugins {
     id 'java-gradle-plugin'
     id 'org.parchmentmc.writtenbooks' version '0.0.6.16'
+    id 'maven-publish'
 }
 
 project.group = 'org.parchmentmc'
