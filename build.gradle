@@ -20,10 +20,8 @@ test {
 
 gradlePlugin {
     // Define the plugin
-    plugins {
-        writtenbooks {
-            id = 'org.parchmentmc.writtenbooks'
-            implementationClass = 'org.parchmentmc.writtenbooks.WrittenBooksPlugin'
-        }
+    plugins.register("writtenbooks") {
+        id = 'org.parchmentmc.writtenbooks'
+        implementationClass = 'org.parchmentmc.writtenbooks.WrittenBooksPlugin'
     }
 }
