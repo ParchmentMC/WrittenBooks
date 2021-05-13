@@ -2,6 +2,8 @@ package org.parchmentmc.writtenbooks.versioning;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.gradle.api.Project;
 import org.gradle.api.logging.LogLevel;
 
@@ -24,14 +26,16 @@ public class GitVersion {
     private final List<String> exemptBranches;
     @Nullable
     private String cachedVersion = null;
+    private final boolean throwOnError;
 
-    public GitVersion(Project project, List<String> exemptBranches) {
+    public GitVersion(Project project, List<String> exemptBranches, boolean throwOnError) {
         this.project = project;
         this.exemptBranches = exemptBranches;
+        this.throwOnError = throwOnError;
     }
 
     public GitVersion(Project project) {
-        this(project, DEFAULT_MAIN_BRANCHES);
+        this(project, DEFAULT_MAIN_BRANCHES, true);
     }
 
     public String getVersion() {
@@ -43,53 +47,64 @@ public class GitVersion {
     }
 
     private String getVersionFromProject(final Project project) {
-        final Git projectGit = getGitFromProject(project);
-
-        if (projectGit == null) {
-            return "0.0.0-NOGIT";
-        }
-
-        try {
-            final String desc = projectGit.describe().setLong(true).setTags(true).call();
-            if (desc == null)
-                return "0.0.0-NODESC";
-
-            final String[] descParts = projectGit.describe().setLong(true).setTags(true).call().split("-");
-
-            final int offset = Integer.parseInt(descParts[1]);
-
-            String branch = projectGit.getRepository().getBranch();
-            if (branch != null && branch.startsWith("pulls/"))
-                branch = "pr" + branch.split("/", 1)[1];
-            if (branch == null || exemptBranches.contains(branch)) {
-                if (offset == 0)
-                    return descParts[0];
-
-                return descParts[0] + "." + descParts[1];
+        try (Repository repo = getRepository(project, throwOnError)) {
+            if (repo == null) {
+                return "0.0.0-NOGIT";
             }
 
-            if (offset == 0) {
-                return descParts[0] + "-" + branch + "." + offset;
+            Git projectGit = Git.wrap(repo);
+
+            try {
+                final String desc = projectGit.describe().setLong(true).setTags(true).call();
+                if (desc == null)
+                    return "0.0.0-NODESC";
+
+                final String[] descParts = projectGit.describe().setLong(true).setTags(true).call().split("-");
+
+                final int offset = Integer.parseInt(descParts[1]);
+
+                String branch = projectGit.getRepository().getBranch();
+                if (branch != null && branch.startsWith("pulls/"))
+                    branch = "pr" + branch.split("/", 1)[1];
+                if (branch == null || exemptBranches.contains(branch)) {
+                    if (offset == 0)
+                        return descParts[0];
+
+                    return descParts[0] + "." + descParts[1];
+                }
+
+                if (offset == 0) {
+                    return descParts[0] + "-" + branch + "." + offset;
+                }
+                return descParts[0] + "." + descParts[1] + "-" + branch;
+            } catch (IOException | GitAPIException e) {
+                if (throwOnError) {
+                    throw new IllegalArgumentException("Failed to determine version string from Git", e);
+                } else {
+                    project.getLogger().log(LogLevel.ERROR, "Failure to determine version string from Git", e);
+                }
+                return "0.0.0-FAILURE";
             }
-            return descParts[0] + "." + descParts[1] + "-" + branch;
-        } catch (IOException | GitAPIException e) {
-            project.getLogger().log(LogLevel.ERROR, "Failure to determine version string.", e);
-            return "0.0.0-FAILURE";
         }
     }
 
-    private Git getGitFromProject(final Project project) {
-        return getGitFromDirectory(project.getProjectDir());
+    @Nullable
+    private Repository getRepository(final Project project, boolean throwOnError) {
+        return getRepository(project.getProjectDir(), throwOnError);
     }
 
-    private Git getGitFromDirectory(final File directory) throws IllegalArgumentException {
+    @Nullable
+    private Repository getRepository(final File directory, boolean throwOnError) throws IllegalArgumentException {
         try {
-            return Git.open(directory);
-        } catch (Exception e) {
-            if (directory.getParentFile() == null)
-                throw new IllegalArgumentException("Could not find the git workspace of the current directory.");
-
-            return getGitFromDirectory(directory.getParentFile());
+            return new RepositoryBuilder()
+                    .readEnvironment()
+                    .findGitDir(directory)
+                    .build();
+        } catch (IOException e) {
+            if (throwOnError) {
+                throw new IllegalArgumentException("Could not find Git repository starting from " + directory, e);
+            }
+            return null;
         }
     }
 
