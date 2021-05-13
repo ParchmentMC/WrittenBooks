@@ -17,7 +17,7 @@ pluginManagement {
 Then add the plugin as normal to your `build.gradle`:
 ```groovy
 plugins {
-    id 'ParchmentMC-WrittenBooks' version '0.0.0'
+    id 'org.parchmentmc.writtenbooks' version '0.0.0'
 }
 ```
 Substituting the version number (here `0.0.0`) with the requested version number.

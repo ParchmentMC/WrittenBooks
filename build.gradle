@@ -11,14 +11,17 @@ repositories {
 
 dependencies {
     implementation 'org.eclipse.jgit:org.eclipse.jgit:+'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 gradlePlugin {
     // Define the plugin
-    plugins {
-        writtenbooks {
-            id = 'ParchmentMC-WrittenBooks'
-            implementationClass = 'org.parchmentmc.writtenbooks.WrittenBooksPlugin'
-        }
+    plugins.register("writtenbooks") {
+        id = 'org.parchmentmc.writtenbooks'
+        implementationClass = 'org.parchmentmc.writtenbooks.WrittenBooksPlugin'
     }
 }
