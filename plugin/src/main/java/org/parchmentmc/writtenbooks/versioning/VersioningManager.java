@@ -40,15 +40,22 @@ public class VersioningManager
     private String getVersionFromProject(final Project project) {
         final Git projectGit = getGitFromProject(project);
 
+        if (projectGit == null)
+            return "0.0.0-NOGIT";
+
         try
         {
-            final String[] description = projectGit.describe().setLong(true).setTags(true).call().split("-");
+            final String desc = projectGit.describe().setLong(true).setTags(true).call();
+            if(desc == null)
+                return "0.0.0-NODESC";
+
+            final String[] descParts = projectGit.describe().setLong(true).setTags(true).call().split("-");
             String branch = projectGit.getRepository().getBranch();
             if (branch != null && branch.startsWith("pulls/"))
                 branch = "pr" + branch.split("/", 1)[1];
             if (branch == null || DEFAULT_MAIN_BRANCHES.contains(branch))
-                return description[0] + "." + description[1];
-            return description[0] + "." + description[1] + "-" + branch;
+                return descParts[0] + "." + descParts[1];
+            return descParts[0] + "." + descParts[1] + "-" + branch;
         }
         catch (IOException | GitAPIException e)
         {
