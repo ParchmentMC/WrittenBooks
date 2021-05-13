@@ -22,7 +22,7 @@ gradlePlugin {
     // Define the plugin
     plugins {
         writtenbooks {
-            id = 'ParchmentMC-WrittenBooks'
+            id = 'org.parchmentmc.writtenbooks'
             implementationClass = 'org.parchmentmc.writtenbooks.WrittenBooksPlugin'
         }
     }
