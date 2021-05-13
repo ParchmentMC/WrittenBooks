@@ -20,7 +20,7 @@ public class GitVersion {
     private static final String GENERAL_FAILURE_VERSION = "0.0.0-FAILURE";
     private static final String EXEMPT_BRANCH_VERSION = "%s-SNAPSHOT";
     private static final String BRANCH_VERSION = "%s-%s-SNAPSHOT";
-    private static final List<String> DEFAULT_MAIN_BRANCHES = new ArrayList<>();
+    public static final List<String> DEFAULT_MAIN_BRANCHES = new ArrayList<>();
 
     static {
         DEFAULT_MAIN_BRANCHES.add("master");
