@@ -50,11 +50,23 @@ public class VersioningManager
                 return "0.0.0-NODESC";
 
             final String[] descParts = projectGit.describe().setLong(true).setTags(true).call().split("-");
+
+            final int offset = Integer.parseInt(descParts[1]);
+
             String branch = projectGit.getRepository().getBranch();
             if (branch != null && branch.startsWith("pulls/"))
                 branch = "pr" + branch.split("/", 1)[1];
             if (branch == null || DEFAULT_MAIN_BRANCHES.contains(branch))
+            {
+                if (offset == 0)
+                    return descParts[0];
+
                 return descParts[0] + "." + descParts[1];
+            }
+
+            if (offset == 0){
+                return descParts[0] + "-" + branch + "." + offset;
+            }
             return descParts[0] + "." + descParts[1] + "-" + branch;
         }
         catch (IOException | GitAPIException e)
