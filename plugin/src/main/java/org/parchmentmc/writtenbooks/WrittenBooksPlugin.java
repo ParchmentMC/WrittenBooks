@@ -3,16 +3,16 @@
  */
 package org.parchmentmc.writtenbooks;
 
-import org.gradle.api.Project;
 import org.gradle.api.Plugin;
+import org.gradle.api.Project;
 import org.parchmentmc.writtenbooks.publishing.PublishingManager;
-import org.parchmentmc.writtenbooks.versioning.VersioningManager;
+import org.parchmentmc.writtenbooks.versioning.GitVersion;
 
 public class WrittenBooksPlugin implements Plugin<Project> {
 
     public void apply(Project project) {
-        project.getLogger().debug("Applying versioning manager.");
-        VersioningManager.getInstance().apply(project);
+        project.getLogger().debug("Applying Git-based versioning");
+        project.setVersion(new GitVersion(project));
 
         project.getLogger().debug("Applying repository");
         project.getRepositories().maven(repo -> {
