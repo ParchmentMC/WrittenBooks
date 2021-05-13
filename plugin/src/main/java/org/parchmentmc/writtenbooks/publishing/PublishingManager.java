@@ -1,10 +1,9 @@
 package org.parchmentmc.writtenbooks.publishing;
 
-import org.gradle.api.Action;
 import org.gradle.api.Project;
-import org.gradle.api.artifacts.dsl.RepositoryHandler;
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.plugins.PublishingPlugin;
 
 public class PublishingManager
 {
@@ -20,15 +19,20 @@ public class PublishingManager
     }
 
     public void apply(final Project project) {
-        project.getPlugins().apply("maven-publish");
+        Provider<String> usernameEnv = project.getProviders().environmentVariable("LDTTeamJfrogUsername").forUseAtConfigurationTime();
+        Provider<String> passwordEnv = project.getProviders().environmentVariable("LDTTeamJfrogPassword").forUseAtConfigurationTime();
 
-        if (System.getenv().containsKey("LDTTeamJfrogUsername") && System.getenv().containsKey("LDTTeamJfrogPassword")) {
-            project.getExtensions().configure("publishing", (Action<PublishingExtension>) pubEx -> pubEx.repositories(repos -> repos.maven(maven -> {
-                maven.setName("ParchmentMC");
-                maven.setUrl("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/");
-                maven.getCredentials().setUsername(System.getenv().get("LDTTeamJfrogUsername"));
-                maven.getCredentials().setPassword(System.getenv().get("LDTTeamJfrogPassword"));
-            })));
-        }
+        project.getPlugins().withType(PublishingPlugin.class, publishPlugin -> {
+            if (usernameEnv.isPresent() && passwordEnv.isPresent()) {
+                project.getExtensions().getByType(PublishingExtension.class).getRepositories().maven(maven -> {
+                    maven.setName("ParchmentMC");
+                    maven.setUrl("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/");
+                    maven.credentials(cred -> {
+                        cred.setUsername(usernameEnv.get());
+                        cred.setPassword(passwordEnv.get());
+                    });
+                });
+            }
+        });
     }
 }
