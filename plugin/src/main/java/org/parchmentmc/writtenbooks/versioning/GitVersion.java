@@ -59,7 +59,7 @@ public class GitVersion {
                 if (desc == null)
                     return "0.0.0-NODESC";
 
-                final String[] descParts = projectGit.describe().setLong(true).setTags(true).call().split("-");
+                final String[] descParts = desc.split("-");
 
                 final int offset = Integer.parseInt(descParts[1]);
 
