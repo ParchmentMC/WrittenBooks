@@ -18,8 +18,8 @@ public class GitVersion {
     private static final String NO_GIT_VERSION = "0.0.0-NOGIT";
     private static final String NO_GIT_DESCRIBE_VERSION = "0.0.0-DESCRIBE";
     private static final String GENERAL_FAILURE_VERSION = "0.0.0-FAILURE";
-    private static final String EXEMPT_BRANCH_VERSION = "%s-SNAPSHOT";
-    private static final String BRANCH_VERSION = "%s-%s-SNAPSHOT";
+    private static final String EXEMPT_BRANCH_VERSION = "%s.%s-SNAPSHOT";
+    private static final String BRANCH_VERSION = "%s.%s-%s-SNAPSHOT";
     public static final List<String> DEFAULT_MAIN_BRANCHES = new ArrayList<>();
 
     static {
@@ -125,10 +125,10 @@ public class GitVersion {
         }
 
         if (branch == null || isExempt.test(branch)) { // No branch or exempt branch
-            return String.format(EXEMPT_BRANCH_VERSION, tag);
+            return String.format(EXEMPT_BRANCH_VERSION, tag, commitAmount);
         }
 
-        return String.format(BRANCH_VERSION, tag, branch.replace("/", "_"));
+        return String.format(BRANCH_VERSION, tag, commitAmount, branch.replace("/", "_"));
     }
 
     @Nullable
