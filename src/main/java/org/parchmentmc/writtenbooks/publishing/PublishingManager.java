@@ -5,34 +5,32 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.plugins.PublishingPlugin;
 
-public class PublishingManager
-{
-    private static final PublishingManager INSTANCE = new PublishingManager();
+public class PublishingManager {
+    private final Provider<String> repository;
+    private final Provider<String> username;
+    private final Provider<String> password;
 
-    public static PublishingManager getInstance()
-    {
-        return INSTANCE;
-    }
-
-    private PublishingManager()
-    {
+    public PublishingManager(Provider<String> repository, Provider<String> username, Provider<String> password) {
+        this.repository = repository.forUseAtConfigurationTime();
+        this.username = username.forUseAtConfigurationTime();
+        this.password = password.forUseAtConfigurationTime();
     }
 
     public void apply(final Project project) {
-        Provider<String> usernameEnv = project.getProviders().environmentVariable("LDTTeamJfrogUsername").forUseAtConfigurationTime();
-        Provider<String> passwordEnv = project.getProviders().environmentVariable("LDTTeamJfrogPassword").forUseAtConfigurationTime();
-
-        project.getPlugins().withType(PublishingPlugin.class, publishPlugin -> {
-            if (usernameEnv.isPresent() && passwordEnv.isPresent()) {
-                project.getExtensions().getByType(PublishingExtension.class).getRepositories().maven(maven -> {
-                    maven.setName("ParchmentMC");
-                    maven.setUrl("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/");
-                    maven.credentials(cred -> {
-                        cred.setUsername(usernameEnv.get());
-                        cred.setPassword(passwordEnv.get());
+        project.afterEvaluate(p -> {
+            p.getPlugins().withType(PublishingPlugin.class, publishPlugin -> {
+                if (username.isPresent() && password.isPresent()) {
+                    p.getExtensions().getByType(PublishingExtension.class).getRepositories().maven(maven -> {
+                        maven.setName("ParchmentMC");
+                        maven.setUrl(repository.get());
+                        p.getLogger().debug("Set publishing Maven repository to '{}'", maven.getUrl());
+                        maven.credentials(cred -> {
+                            cred.setUsername(username.get());
+                            cred.setPassword(password.get());
+                        });
                     });
-                });
-            }
+                }
+            });
         });
     }
 }

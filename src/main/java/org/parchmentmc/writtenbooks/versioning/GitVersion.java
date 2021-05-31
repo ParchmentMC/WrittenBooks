@@ -53,6 +53,10 @@ public class GitVersion {
         return cachedVersion;
     }
 
+    public boolean isSnapshot() {
+        return getVersion().contains("SNAPSHOT");
+    }
+
     /*
     Versioning logic is as follows:
      [for tags, remove the `v` from the beginning if present]

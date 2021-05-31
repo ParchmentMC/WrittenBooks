@@ -5,6 +5,7 @@ package org.parchmentmc.writtenbooks;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.provider.Provider;
 import org.parchmentmc.writtenbooks.publishing.PublishingManager;
 import org.parchmentmc.writtenbooks.versioning.GitVersion;
 
@@ -23,7 +24,15 @@ public class WrittenBooksPlugin implements Plugin<Project> {
             repo.setUrl("https://ldtteam.jfrog.io/artifactory/parchmentmc/");
         });
 
+        final Provider<String> repo = extension.getReleaseRepository().zip(extension.getSnapshotRepository(),
+                (release, snapshot) -> {
+                    if (project.getVersion() instanceof GitVersion) {
+                        return ((GitVersion) project.getVersion()).isSnapshot() ? snapshot : release;
+                    }
+                    return snapshot;
+                });
+
         project.getLogger().debug("Applying publishing manager.");
-        PublishingManager.getInstance().apply(project);
+        new PublishingManager(repo, extension.getRepositoryUsername(), extension.getRepositoryPassword()).apply(project);
     }
 }
