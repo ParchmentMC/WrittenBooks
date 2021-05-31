@@ -6,6 +6,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.gradle.api.Project;
 import org.gradle.api.logging.LogLevel;
+import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -29,19 +30,19 @@ public class GitVersion {
     }
 
     private final Project project;
-    private final List<String> exemptBranches;
+    private final Provider<List<String>> exemptBranches;
     @Nullable
     private String cachedVersion = null;
     private final boolean throwOnError;
 
-    public GitVersion(Project project, List<String> exemptBranches, boolean throwOnError) {
+    public GitVersion(Project project, Provider<List<String>> exemptBranches, boolean throwOnError) {
         this.project = project;
         this.exemptBranches = exemptBranches;
         this.throwOnError = throwOnError;
     }
 
     public GitVersion(Project project) {
-        this(project, DEFAULT_MAIN_BRANCHES, true);
+        this(project, project.provider(() -> DEFAULT_MAIN_BRANCHES), true);
     }
 
     public String getVersion() {
@@ -81,7 +82,7 @@ public class GitVersion {
                 final String[] descParts = desc.split("-");
                 final int commitAmount = Integer.parseInt(descParts[1]);
 
-                return createVersionString(descParts[0], commitAmount, projectGit.getRepository().getBranch(), exemptBranches::contains);
+                return createVersionString(descParts[0], commitAmount, projectGit.getRepository().getBranch(), exemptBranches.get()::contains);
             } catch (IOException | GitAPIException e) {
                 if (throwOnError) {
                     throw new IllegalArgumentException("Failed to determine version string from Git", e);
