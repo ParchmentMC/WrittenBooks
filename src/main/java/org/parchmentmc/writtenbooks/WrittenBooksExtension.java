@@ -48,4 +48,10 @@ public abstract class WrittenBooksExtension {
      * the publishing repository is not registered.</p>
      */
     public abstract Property<String> getRepositoryPassword();
+
+    /**
+     * The GitHub repository where this project is located, in the form of {@code username/repository}. Used for default
+     * values in {@link org.gradle.api.publish.maven.MavenPom POMs} in Maven publications.
+     */
+    public abstract Property<String> getGithubRepo();
 }

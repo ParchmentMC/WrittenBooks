@@ -29,7 +29,8 @@ public class WrittenBooksPlugin implements Plugin<Project> {
                     return snapshot;
                 });
 
-        project.getLogger().debug("Applying publishing manager.");
-        new PublishingManager(repo, extension.getRepositoryUsername(), extension.getRepositoryPassword()).apply(project);
+        project.getLogger().debug("Applying publishing manager");
+        new PublishingManager(repo, extension.getRepositoryUsername(), extension.getRepositoryPassword(),
+                extension.getGithubRepo()).apply(project);
     }
 }
