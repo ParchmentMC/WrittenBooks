@@ -103,11 +103,12 @@ public class GitVersion {
      *
      * <p>First, if the tag starts with the character {@code "v"}, then that character is stripped from the tag.</p>
      *
-     * <p>If the commit amount is zero (indicating that the current commit is directly tagged), then the tag is returned.
-     * Otherwise, the branch information will be used to create the version.</p>
+     * <p>If the branch begins with the prefix {@code "pulls/"}, then the number directly after
+     * the prefix is used to construct a new branch name of {@code "pr###"} (where {@code ###} is the number). This
+     * is a convenience feature to alias pull requests with a better branch name.</p>
      *
-     * <p>Before the next rule, if the branch begins with the prefix {@code "pulls/"}, then the number directly after
-     * the prefix is used to construct a new branch name of {@code "pr###"} (where {@code ###} is the number).</p>
+     * <p>If the commit amount is zero (indicating that the current commit is directly tagged) and the exempt branch
+     * predicate determines that the branch is exempt, then the tag is returned. </p>
      *
      * <p>The exempt branch predicate is used to determine if the branch is exempt; if it is exempt, then the version format
      * used will be {@link #EXEMPT_BRANCH_VERSION}. Otherwise, the version format will be {@link #BRANCH_VERSION}.</p>
@@ -121,15 +122,17 @@ public class GitVersion {
     public static String createVersionString(String tag, int commitAmount, @Nullable String branch, Predicate<String> isExempt) {
         tag = tag.startsWith("v") ? tag.substring(1) : tag;
 
-        if (commitAmount == 0) { // If directly tagged, use that version
-            return tag;
-        }
-
         if (branch != null && branch.startsWith("pulls/")) { // convert the numbered Pull Request branch
             branch = "pr" + branch.split("/", 1)[1]; // pulls/### -> pr###
         }
 
-        if (branch == null || isExempt.test(branch)) { // No branch or exempt branch
+        boolean exempt = branch != null && isExempt.test(branch);
+
+        if (commitAmount == 0 && exempt) { // If directly tagged and exempt, use that version
+            return tag;
+        }
+
+        if (branch == null || exempt) { // No branch or exempt branch
             return String.format(EXEMPT_BRANCH_VERSION, tag, commitAmount);
         }
 
