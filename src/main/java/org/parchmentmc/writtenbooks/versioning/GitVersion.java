@@ -116,7 +116,7 @@ public class GitVersion {
     public static String createVersionString(String tag, int commitAmount, @Nullable String branch, Predicate<String> isExempt) {
         tag = tag.startsWith("v") ? tag.substring(1) : tag;
 
-        if (commitAmount == 0) { // If directly tagged, use that version
+        if (commitAmount == 0 && isExempt.test(branch)) { // If directly tagged, use that version for exempt branches.
             return tag;
         }
 
