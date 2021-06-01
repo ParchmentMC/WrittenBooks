@@ -13,8 +13,8 @@ public abstract class WrittenBooksExtension {
         getMainBranches().convention(GitVersion.DEFAULT_MAIN_BRANCHES);
         getReleaseRepository().convention("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/");
         getSnapshotRepository().convention("https://ldtteam.jfrog.io/artifactory/parchmentmc-snapshots/");
-        getRepositoryUsername().convention(providers.environmentVariable("LDTTeamJfrogUsername"));
-        getRepositoryPassword().convention(providers.environmentVariable("LDTTeamJfrogPassword"));
+        getRepositoryUsername().convention(providers.environmentVariable("LDTTeamJfrogUsername").forUseAtConfigurationTime());
+        getRepositoryPassword().convention(providers.environmentVariable("LDTTeamJfrogPassword").forUseAtConfigurationTime());
     }
 
     /**
