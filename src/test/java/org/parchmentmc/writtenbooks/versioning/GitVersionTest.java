@@ -14,7 +14,7 @@ public class GitVersionTest {
                 createVersionString("1.0.0", 0, "main", DEFAULT_MAIN_BRANCHES::contains));
         assertEquals("1.0.0.25-SNAPSHOT",
                 createVersionString("1.0.0", 25, "main", DEFAULT_MAIN_BRANCHES::contains));
-        assertEquals("1.0.0",
+        assertEquals("1.0.0.0-dev-SNAPSHOT",
                 createVersionString("1.0.0", 0, "dev", DEFAULT_MAIN_BRANCHES::contains));
         assertEquals("1.0.0.25-dev-SNAPSHOT",
                 createVersionString("1.0.0", 25, "dev", DEFAULT_MAIN_BRANCHES::contains));
@@ -25,7 +25,7 @@ public class GitVersionTest {
                 createVersionString("v1.1.0", 0, "main", DEFAULT_MAIN_BRANCHES::contains));
         assertEquals("1.1.0.25-SNAPSHOT",
                 createVersionString("v1.1.0", 25, "main", DEFAULT_MAIN_BRANCHES::contains));
-        assertEquals("1.1.0",
+        assertEquals("1.1.0.0-dev-SNAPSHOT",
                 createVersionString("v1.1.0", 0, "dev", DEFAULT_MAIN_BRANCHES::contains));
         assertEquals("1.1.0.25-dev-SNAPSHOT",
                 createVersionString("v1.1.0", 25, "dev", DEFAULT_MAIN_BRANCHES::contains));
