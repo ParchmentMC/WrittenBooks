@@ -1,6 +1,6 @@
 plugins {
     id 'java-gradle-plugin'
-    id 'org.parchmentmc.writtenbooks' version '0.+'
+    id 'org.parchmentmc.writtenbooks' version '0.2.0-dev-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -14,6 +14,8 @@ dependencies {
     implementation 'org.eclipse.jgit:org.eclipse.jgit:5.11.1.202105131744-r'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
 }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 test {
     useJUnitPlatform()
