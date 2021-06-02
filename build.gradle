@@ -1,14 +1,10 @@
 plugins {
     id 'java-gradle-plugin'
-    id 'org.parchmentmc.writtenbooks' version '0.2.0-dev-SNAPSHOT'
+    id 'org.parchmentmc.writtenbooks' version '0.+'
     id 'maven-publish'
 }
 
 project.group = 'org.parchmentmc'
-
-repositories {
-    jcenter()
-}
 
 dependencies {
     implementation 'org.eclipse.jgit:org.eclipse.jgit:5.11.1.202105131744-r'
