@@ -6,6 +6,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.gradle.api.Project;
 import org.gradle.api.logging.LogLevel;
+import org.gradle.api.provider.Provider;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -18,8 +19,8 @@ public class GitVersion {
     private static final String NO_GIT_VERSION = "0.0.0-NOGIT";
     private static final String NO_GIT_DESCRIBE_VERSION = "0.0.0-DESCRIBE";
     private static final String GENERAL_FAILURE_VERSION = "0.0.0-FAILURE";
-    private static final String EXEMPT_BRANCH_VERSION = "%s-SNAPSHOT";
-    private static final String BRANCH_VERSION = "%s-%s-SNAPSHOT";
+    private static final String EXEMPT_BRANCH_VERSION = "%s.%s-SNAPSHOT";
+    private static final String BRANCH_VERSION = "%s.%s-%s-SNAPSHOT";
     public static final List<String> DEFAULT_MAIN_BRANCHES = new ArrayList<>();
 
     static {
@@ -29,19 +30,19 @@ public class GitVersion {
     }
 
     private final Project project;
-    private final List<String> exemptBranches;
+    private final Provider<List<String>> exemptBranches;
     @Nullable
     private String cachedVersion = null;
     private final boolean throwOnError;
 
-    public GitVersion(Project project, List<String> exemptBranches, boolean throwOnError) {
+    public GitVersion(Project project, Provider<List<String>> exemptBranches, boolean throwOnError) {
         this.project = project;
         this.exemptBranches = exemptBranches;
         this.throwOnError = throwOnError;
     }
 
     public GitVersion(Project project) {
-        this(project, DEFAULT_MAIN_BRANCHES, true);
+        this(project, project.provider(() -> DEFAULT_MAIN_BRANCHES), true);
     }
 
     public String getVersion() {
@@ -50,6 +51,10 @@ public class GitVersion {
             project.getLogger().lifecycle("Version for {}: {}", project.getName(), cachedVersion);
         }
         return cachedVersion;
+    }
+
+    public boolean isSnapshot() {
+        return getVersion().contains("SNAPSHOT");
     }
 
     /*
@@ -81,7 +86,7 @@ public class GitVersion {
                 final String[] descParts = desc.split("-");
                 final int commitAmount = Integer.parseInt(descParts[1]);
 
-                return createVersionString(descParts[0], commitAmount, projectGit.getRepository().getBranch(), exemptBranches::contains);
+                return createVersionString(descParts[0], commitAmount, projectGit.getRepository().getBranch(), exemptBranches.get()::contains);
             } catch (IOException | GitAPIException e) {
                 if (throwOnError) {
                     throw new IllegalArgumentException("Failed to determine version string from Git", e);
@@ -98,11 +103,12 @@ public class GitVersion {
      *
      * <p>First, if the tag starts with the character {@code "v"}, then that character is stripped from the tag.</p>
      *
-     * <p>If the commit amount is zero (indicating that the current commit is directly tagged), then the tag is returned.
-     * Otherwise, the branch information will be used to create the version.</p>
+     * <p>If the branch begins with the prefix {@code "pulls/"}, then the number directly after
+     * the prefix is used to construct a new branch name of {@code "pr###"} (where {@code ###} is the number). This
+     * is a convenience feature to alias pull requests with a better branch name.</p>
      *
-     * <p>Before the next rule, if the branch begins with the prefix {@code "pulls/"}, then the number directly after
-     * the prefix is used to construct a new branch name of {@code "pr###"} (where {@code ###} is the number).</p>
+     * <p>If the commit amount is zero (indicating that the current commit is directly tagged) and the exempt branch
+     * predicate determines that the branch is exempt, then the tag is returned. </p>
      *
      * <p>The exempt branch predicate is used to determine if the branch is exempt; if it is exempt, then the version format
      * used will be {@link #EXEMPT_BRANCH_VERSION}. Otherwise, the version format will be {@link #BRANCH_VERSION}.</p>
@@ -116,19 +122,21 @@ public class GitVersion {
     public static String createVersionString(String tag, int commitAmount, @Nullable String branch, Predicate<String> isExempt) {
         tag = tag.startsWith("v") ? tag.substring(1) : tag;
 
-        if (commitAmount == 0) { // If directly tagged, use that version
-            return tag;
-        }
-
         if (branch != null && branch.startsWith("pulls/")) { // convert the numbered Pull Request branch
             branch = "pr" + branch.split("/", 1)[1]; // pulls/### -> pr###
         }
 
-        if (branch == null || isExempt.test(branch)) { // No branch or exempt branch
-            return String.format(EXEMPT_BRANCH_VERSION, tag);
+        boolean exempt = branch != null && isExempt.test(branch);
+
+        if (commitAmount == 0 && exempt) { // If directly tagged and exempt, use that version
+            return tag;
         }
 
-        return String.format(BRANCH_VERSION, tag, branch.replace("/", "_"));
+        if (branch == null || exempt) { // No branch or exempt branch
+            return String.format(EXEMPT_BRANCH_VERSION, tag, commitAmount);
+        }
+
+        return String.format(BRANCH_VERSION, tag, commitAmount, branch.replace("/", "_"));
     }
 
     @Nullable
