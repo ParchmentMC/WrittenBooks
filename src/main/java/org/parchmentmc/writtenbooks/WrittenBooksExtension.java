@@ -1,5 +1,6 @@
 package org.parchmentmc.writtenbooks;
 
+import org.gradle.api.Project;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.ProviderFactory;
@@ -54,4 +55,23 @@ public abstract class WrittenBooksExtension {
      * values in {@link org.gradle.api.publish.maven.MavenPom POMs} in Maven publications.
      */
     public abstract Property<String> getGithubRepo();
+
+    /**
+     * An override for whether this version is a snapshot version, used to determine what publishing repository to use.
+     *
+     * <p>The logic for what repository is used for publishing is as follows (assuming that the repository
+     * {@link #getRepositoryUsername() username} and {@link #getRepositoryPassword() password} are specified):</p>
+     * <ul>
+     *     <li>First, the value of this property is queried. If there is a value, then if it is {@code true}, the
+     *     snapshot repository is used, otherwise if {@code false} then the release repository is used.</li>
+     *     <li>If the property has no value, then the {@link Project#getVersion() version object} is checked if it
+     *     is the {@link GitVersion version supplied by WrittenBooks}. If so, then the version object determines whether
+     *     to use the snapshot repository through {@link GitVersion#isSnapshot()}.</li>
+     *     <li>Otherwise, the snapshot repository is used.</li>
+     * </ul>
+     *
+     * @see #getReleaseRepository()
+     * @see #getSnapshotRepository()
+     */
+    public abstract Property<Boolean> getSnapshotVersion();
 }

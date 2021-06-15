@@ -23,6 +23,9 @@ public class WrittenBooksPlugin implements Plugin<Project> {
 
         final Provider<String> repo = extension.getReleaseRepository().zip(extension.getSnapshotRepository(),
                 (release, snapshot) -> {
+                    if (extension.getSnapshotVersion().isPresent()) {
+                        return extension.getSnapshotVersion().get() ? snapshot : release;
+                    }
                     if (project.getVersion() instanceof GitVersion) {
                         return ((GitVersion) project.getVersion()).isSnapshot() ? snapshot : release;
                     }
