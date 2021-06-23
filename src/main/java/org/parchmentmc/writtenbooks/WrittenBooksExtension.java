@@ -14,6 +14,7 @@ public abstract class WrittenBooksExtension {
         getMainBranches().convention(GitVersion.DEFAULT_MAIN_BRANCHES);
         getReleaseRepository().convention("https://ldtteam.jfrog.io/artifactory/parchmentmc-internal/");
         getSnapshotRepository().convention("https://ldtteam.jfrog.io/artifactory/parchmentmc-snapshots/");
+        getBleedingRepository().convention("https://ldtteam.jfrog.io/artifactory/parchmentmc-bleeding/");
         getRepositoryUsername().convention(providers.environmentVariable("LDTTeamJfrogUsername").forUseAtConfigurationTime());
         getRepositoryPassword().convention(providers.environmentVariable("LDTTeamJfrogPassword").forUseAtConfigurationTime());
     }
@@ -33,6 +34,11 @@ public abstract class WrittenBooksExtension {
      * The URL for the Maven repository where snapshots are published.
      */
     public abstract Property<String> getSnapshotRepository();
+
+    /**
+     * The URL for the Maven repository where bleeding snapshots are published.
+     */
+    public abstract Property<String> getBleedingRepository();
 
     /**
      * The username used for the authenticating to the publishing repository.
@@ -72,6 +78,20 @@ public abstract class WrittenBooksExtension {
      *
      * @see #getReleaseRepository()
      * @see #getSnapshotRepository()
+     * @see #getBleedingRepository()
      */
     public abstract Property<Boolean> getSnapshotVersion();
+
+    /**
+     * An override for the snapshot version system.
+     * If this is set, no snapshot checks are performed and the build is considered to be a snapshot by default.
+     * Additionally this will override the publishing repository to the bleeding edge repository which has its own
+     * shorter retention policies.
+     *
+     * @see #getReleaseRepository()
+     * @see #getSnapshotRepository()
+     * @see #getBleedingRepository()
+     * @see #getSnapshotVersion()
+     */
+    public abstract Property<Boolean> getBleedingVersion();
 }

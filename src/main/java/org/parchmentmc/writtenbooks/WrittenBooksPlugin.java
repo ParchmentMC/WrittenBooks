@@ -6,6 +6,8 @@ import org.gradle.api.provider.Provider;
 import org.parchmentmc.writtenbooks.publishing.PublishingManager;
 import org.parchmentmc.writtenbooks.versioning.GitVersion;
 
+import java.util.function.BiFunction;
+
 public class WrittenBooksPlugin implements Plugin<Project> {
     public static final String EXTENSION_NAME = "writtenbooks";
 
@@ -21,19 +23,34 @@ public class WrittenBooksPlugin implements Plugin<Project> {
             repo.setUrl("https://ldtteam.jfrog.io/artifactory/parchmentmc/");
         });
 
-        final Provider<String> repo = extension.getReleaseRepository().zip(extension.getSnapshotRepository(),
-                (release, snapshot) -> {
-                    if (extension.getSnapshotVersion().isPresent()) {
-                        return extension.getSnapshotVersion().get() ? snapshot : release;
-                    }
-                    if (project.getVersion() instanceof GitVersion) {
-                        return ((GitVersion) project.getVersion()).isSnapshot() ? snapshot : release;
-                    }
-                    return snapshot;
-                });
+        final Provider<String> publicationRepo = extension.getBleedingRepository().zip(
+          extension.getSnapshotRepository(),
+          (bleeding, snapshot) -> {
+              if (extension.getBleedingVersion().isPresent()) {
+                  return extension.getBleedingVersion().get() ? bleeding : snapshot;
+              }
+
+              return snapshot;
+          }
+        ).zip(extension.getReleaseRepository(), (snapshotOrBleeding, release) -> {
+            //If bleeding is present the previous zip will have returned us the bleeding repository.
+            //Blind passthroughs.
+            if (extension.getBleedingVersion().isPresent() && extension.getBleedingVersion().get())
+                return snapshotOrBleeding;
+
+            //In any other case, snapshotOrBleeding will always be the snapshot repository.
+            //We as such validate if this is a snapshot build and execute it accordingly.
+            if (extension.getSnapshotVersion().isPresent()) {
+                return extension.getSnapshotVersion().get() ? snapshotOrBleeding : release;
+            }
+            if (project.getVersion() instanceof GitVersion) {
+                return ((GitVersion) project.getVersion()).isSnapshot() ? snapshotOrBleeding : release;
+            }
+            return snapshotOrBleeding;
+        });
 
         project.getLogger().debug("Applying publishing manager");
-        new PublishingManager(repo, extension.getRepositoryUsername(), extension.getRepositoryPassword(),
+        new PublishingManager(publicationRepo, extension.getRepositoryUsername(), extension.getRepositoryPassword(),
                 extension.getGithubRepo()).apply(project);
     }
 }
