@@ -11,6 +11,10 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
 }
 
+writtenbooks {
+    githubRepo = 'ParchmentMC/WrittenBooks'
+}
+
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 test {
@@ -22,5 +26,24 @@ gradlePlugin {
     plugins.register("writtenbooks") {
         id = 'org.parchmentmc.writtenbooks'
         implementationClass = 'org.parchmentmc.writtenbooks.WrittenBooksPlugin'
+    }
+}
+
+publishing {
+    publications.withType(MavenPublication).configureEach {
+        pom {
+            name = 'WrittenBooks'
+            description = 'Gradle plugin for managing CI-related menial tasks.'
+            organization {
+                name = 'ParchmentMC'
+                url = 'https://github.com/ParchmentMC'
+            }
+            licenses {
+                license {
+                    name = 'MIT'
+                    url = 'https://opensource.org/licenses/MIT'
+                }
+            }
+        }
     }
 }
