@@ -15,7 +15,10 @@ writtenbooks {
     githubRepo = 'ParchmentMC/WrittenBooks'
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
+    withSourcesJar()
+}
 
 test {
     useJUnitPlatform()
