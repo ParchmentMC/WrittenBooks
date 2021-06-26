@@ -6,8 +6,6 @@ import org.gradle.api.provider.Provider;
 import org.parchmentmc.writtenbooks.publishing.PublishingManager;
 import org.parchmentmc.writtenbooks.versioning.GitVersion;
 
-import java.util.function.BiFunction;
-
 public class WrittenBooksPlugin implements Plugin<Project> {
     public static final String EXTENSION_NAME = "writtenbooks";
 
@@ -15,7 +13,7 @@ public class WrittenBooksPlugin implements Plugin<Project> {
         final WrittenBooksExtension extension = project.getExtensions().create(EXTENSION_NAME, WrittenBooksExtension.class);
 
         project.getLogger().debug("Applying Git-based versioning");
-        project.setVersion(new GitVersion(project, extension.getMainBranches(), true));
+        project.setVersion(new GitVersion(project, extension.getMainBranches(), false));
 
         project.getLogger().debug("Applying repository");
         project.getRepositories().maven(repo -> {
