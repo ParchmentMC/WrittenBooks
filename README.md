@@ -25,3 +25,7 @@ plugins {
 ```
 
 > You **must** supply a version number, otherwise Gradle will not resolve the plugin correctly.
+
+#### License
+
+Copyright (c) 2021 ParchmentMC. This project is licensed under the MIT License (see `LICENSE.txt`).
