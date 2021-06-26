@@ -151,7 +151,7 @@ public class GitVersion {
                     .readEnvironment()
                     .findGitDir(directory)
                     .build();
-        } catch (IOException e) {
+        } catch (Exception e) {
             if (throwOnError) {
                 throw new IllegalArgumentException("Could not find Git repository starting from " + directory, e);
             }
