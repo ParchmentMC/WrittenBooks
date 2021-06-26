@@ -20,7 +20,7 @@ public class WrittenBooksPlugin implements Plugin<Project> {
         project.getLogger().debug("Applying repository");
         project.getRepositories().maven(repo -> {
             repo.setName("ParchmentMC");
-            repo.setUrl("https://ldtteam.jfrog.io/artifactory/parchmentmc/");
+            repo.setUrl("https://maven.parchmentmc.org/");
         });
 
         final Provider<String> publicationRepo = extension.getBleedingRepository().zip(

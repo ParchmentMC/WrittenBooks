@@ -8,7 +8,7 @@ pluginManagement {
     repositories {
         maven {
             name 'ParchmentMC'
-            url 'https://ldtteam.jfrog.io/artifactory/parchmentmc/'
+            url 'https://maven.parchmentmc.org/'
         }
         gradlePluginPortal()
     }
