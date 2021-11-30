@@ -2,6 +2,7 @@ package org.parchmentmc.writtenbooks.versioning;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryBuilder;
 import org.gradle.api.Project;
@@ -19,7 +20,7 @@ public class GitVersion {
     private static final String NO_GIT_VERSION = "0.0.0-NOGIT";
     private static final String NO_GIT_DESCRIBE_VERSION = "0.0.0-DESCRIBE";
     private static final String GENERAL_FAILURE_VERSION = "0.0.0-FAILURE";
-    private static final String EXEMPT_BRANCH_VERSION = "%s.%s-SNAPSHOT";
+    private static final String EXEMPT_BRANCH_VERSION = "%s.%s";
     private static final String BRANCH_VERSION = "%s.%s-%s-SNAPSHOT";
     public static final List<String> DEFAULT_MAIN_BRANCHES = new ArrayList<>();
 
@@ -85,7 +86,6 @@ public class GitVersion {
 
                 final String[] descParts = desc.split("-");
                 final int commitAmount = Integer.parseInt(descParts[1]);
-
                 return createVersionString(descParts[0], commitAmount, projectGit.getRepository().getBranch(), exemptBranches.get()::contains);
             } catch (IOException | GitAPIException e) {
                 if (throwOnError) {
@@ -126,7 +126,7 @@ public class GitVersion {
             branch = "pr" + branch.split("/", 1)[1]; // pulls/### -> pr###
         }
 
-        boolean exempt = branch != null && isExempt.test(branch);
+        boolean exempt = branch != null && (isExempt.test(branch) || isExempt.test(branch.replace(Constants.R_HEADS, "")));
 
         if (commitAmount == 0 && exempt) { // If directly tagged and exempt, use that version
             return tag;

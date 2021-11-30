@@ -12,7 +12,7 @@ public class GitVersionTest {
     public void testVersionStrings() {
         assertEquals("1.0.0",
                 createVersionString("1.0.0", 0, "main", DEFAULT_MAIN_BRANCHES::contains));
-        assertEquals("1.0.0.25-SNAPSHOT",
+        assertEquals("1.0.0.25",
                 createVersionString("1.0.0", 25, "main", DEFAULT_MAIN_BRANCHES::contains));
         assertEquals("1.0.0.0-dev-SNAPSHOT",
                 createVersionString("1.0.0", 0, "dev", DEFAULT_MAIN_BRANCHES::contains));
@@ -23,7 +23,7 @@ public class GitVersionTest {
 
         assertEquals("1.1.0",
                 createVersionString("v1.1.0", 0, "main", DEFAULT_MAIN_BRANCHES::contains));
-        assertEquals("1.1.0.25-SNAPSHOT",
+        assertEquals("1.1.0.25",
                 createVersionString("v1.1.0", 25, "main", DEFAULT_MAIN_BRANCHES::contains));
         assertEquals("1.1.0.0-dev-SNAPSHOT",
                 createVersionString("v1.1.0", 0, "dev", DEFAULT_MAIN_BRANCHES::contains));
